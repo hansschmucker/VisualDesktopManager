@@ -22,9 +22,21 @@ namespace VisualDesktopManager
         unsafe bool recordWindowEnum(IntPtr hwnd, int lParam)
         {
             var place = new Win32.WINDOWPLACEMENT();
-
             Win32.GetWindowPlacement(hwnd, ref place);
-            if (((Win32.GetWindowLongA(hwnd, Win32.GWL_STYLE) & Win32.TARGETWINDOW) == Win32.TARGETWINDOW) && place.showCmd!=2 && hwnd!=container.Handle)
+            var style = Win32.GetWindowLongA(hwnd, Win32.GWL_STYLE);
+            StringBuilder title = new StringBuilder(256);
+            StringBuilder module = new StringBuilder(256);
+
+            Win32.GetWindowModuleFileName(hwnd, module, 256);
+            Win32.GetWindowText(hwnd, title, 256);
+
+            if (
+                   (style & Win32.WS_ICONIC) != Win32.WS_ICONIC
+                && (style & Win32.WS_VISIBLE) == Win32.WS_VISIBLE
+                && (title.Length>0 || module.Length>0)
+                && place.showCmd!=2
+                && hwnd!=container.Handle
+            )
                 lastEnumHwnds.Add(hwnd);
             return true;
         }

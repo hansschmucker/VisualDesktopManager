@@ -57,8 +57,35 @@ namespace VisualDesktopManager
         public static readonly int DWM_TNP_OPACITY = 0x4;
         public static readonly int DWM_TNP_RECTDESTINATION = 0x1;
 
-        public static readonly ulong WS_VISIBLE = 0x10000000L;
         public static readonly ulong WS_BORDER = 0x00800000L;
+        public static readonly ulong WS_CAPTION = 0x00C00000L;
+        public static readonly ulong WS_CHILD = 0x40000000L;
+        public static readonly ulong WS_CHILDWINDOW = 0x40000000L;
+        public static readonly ulong WS_CLIPCHILDREN = 0x02000000L;
+        public static readonly ulong WS_CLIPSIBLINGS = 0x04000000L;
+        public static readonly ulong WS_DISABLED = 0x08000000L;
+        public static readonly ulong WS_DLGFRAME = 0x00400000L;
+        public static readonly ulong WS_GROUP = 0x00020000L;
+        public static readonly ulong WS_HSCROLL = 0x00100000L;
+        public static readonly ulong WS_ICONIC = 0x20000000L;
+        public static readonly ulong WS_MAXIMIZE = 0x01000000L;
+        public static readonly ulong WS_MAXIMIZEBOX = 0x00010000L;
+        public static readonly ulong WS_MINIMIZE = 0x20000000L;
+        public static readonly ulong WS_MINIMIZEBOX = 0x00020000L;
+        public static readonly ulong WS_OVERLAPPED = 0x00000000L;
+        public static readonly ulong WS_OVERLAPPEDWINDOW = 0x00000000L | 0x00C00000L | 0x00080000L | 0x00040000L | 0x00020000L | 0x00010000L;
+        public static readonly ulong WS_POPUP = 0x80000000L;
+        public static readonly ulong WS_POPUPWINDOW = 0x80000000L | 0x00800000L | 0x00080000L;
+        public static readonly ulong WS_SIZEBOX = 0x00040000L;
+        public static readonly ulong WS_SYSMENU = 0x00080000L;
+        public static readonly ulong WS_TABSTOP = 0x00010000L;
+        public static readonly ulong WS_THICKFRAME = 0x00040000L;
+        public static readonly ulong WS_TILED = 0x00000000L;
+        public static readonly ulong WS_TILEDWINDOW = 0x00000000L | 0x00C00000L | 0x00080000L | 0x00040000L | 0x00020000L | 0x00010000L;
+        public static readonly ulong WS_VISIBLE = 0x10000000L;
+        public static readonly ulong WS_VSCROLL = 0x00200000L;
+
+
         public static readonly ulong TARGETWINDOW = WS_BORDER | WS_VISIBLE;
         public static readonly int SW_SHOWNOACTIVATE = 0x4;
         public static readonly IntPtr HWND_TOPMOST = (IntPtr)(-1);
@@ -78,14 +105,17 @@ namespace VisualDesktopManager
 
         [DllImport("user32.dll")]
         public static extern ulong GetWindowLongA(IntPtr hWnd, int nIndex);
-
+        
         [DllImport("user32.dll")]
-        public static extern bool isWindow(IntPtr hWnd);
+        public static extern bool IsWindowVisible(IntPtr hWnd);
 
         [DllImport("user32.dll")]
         public static extern int EnumWindows(EnumWindowsCallback lpEnumFunc, int lParam);
         public delegate bool EnumWindowsCallback(IntPtr hwnd, int lParam);
-
+        
+        [DllImport("user32.dll")]
+        public static extern int GetWindowModuleFileName(IntPtr hWnd, StringBuilder title, int size);
+        
         [DllImport("user32.dll")]
         public static extern void GetWindowText(IntPtr hWnd, StringBuilder lpString, int nMaxCount);
 
@@ -103,6 +133,10 @@ namespace VisualDesktopManager
 
         [DllImport("user32.dll")]
         public static extern bool GetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetWindowPlacement(IntPtr hWnd, ref WINDOWPLACEMENT lpwndpl);
+
 
         [DllImport("user32.dll")]
         public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);

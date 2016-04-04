@@ -111,8 +111,13 @@ namespace VisualDesktopManager
                 )
                 {
                     //manager.container.Text = "CX" + cx.ToString() + ",CY" + cy.ToString() + " " + screens[i][0].ToString() + " " + screens[i][1].ToString() + " " + screens[i][2].ToString() + " " + screens[i][3].ToString() + " " + screens[i][4].ToString() + " " + screens[i][5].ToString();
+
                     Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
                     Win32.SetWindowPos(window, IntPtr.Zero, screens[i][0], screens[i][1], screens[i][4], screens[i][5], Win32.SW_SHOWNOACTIVATE);
+                    var pc = new Win32.WINDOWPLACEMENT();
+                    Win32.GetWindowPlacement(window, ref pc);
+                    pc.showCmd = 3;
+                    Win32.SetWindowPlacement(window, ref pc);
                     update(true);
                     return;
                 }
