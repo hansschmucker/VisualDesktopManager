@@ -57,15 +57,17 @@ namespace VisualDesktopManager
             Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
             var dx = (int)(inputx / manager.scale + manager.viewport_x0 - natW / 2);
             var dy = (int)(inputy / manager.scale + manager.viewport_y0 - natH / 2);
-            if (dx < manager.viewport_x0)
-                dx = manager.viewport_x0;
-            if (dy < manager.viewport_y0)
-                dy = manager.viewport_y0;
+
 
             if (dx + natW > manager.viewport_x1)
                 dx = manager.viewport_x1 - natW;
             if (dy + natH > manager.viewport_y1)
                 dy = manager.viewport_y1 - natH;
+
+            if (dx < manager.viewport_x0)
+                dx = manager.viewport_x0;
+            if (dy < manager.viewport_y0)
+                dy = manager.viewport_y0;
 
             Win32.SetWindowPos(window, IntPtr.Zero,dx, dy, natW, natH, Win32.SW_SHOWNOACTIVATE);
             update(true);
@@ -113,7 +115,7 @@ namespace VisualDesktopManager
                     //manager.container.Text = "CX" + cx.ToString() + ",CY" + cy.ToString() + " " + screens[i][0].ToString() + " " + screens[i][1].ToString() + " " + screens[i][2].ToString() + " " + screens[i][3].ToString() + " " + screens[i][4].ToString() + " " + screens[i][5].ToString();
 
                     Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
-                    Win32.SetWindowPos(window, IntPtr.Zero, screens[i][0], screens[i][1], screens[i][4], screens[i][5], Win32.SW_SHOWNOACTIVATE);
+                    //Win32.SetWindowPos(window, IntPtr.Zero, screens[i][0], screens[i][1], screens[i][4], screens[i][5], Win32.SW_SHOWNOACTIVATE);
                     var pc = new Win32.WINDOWPLACEMENT();
                     Win32.GetWindowPlacement(window, ref pc);
                     pc.showCmd = 3;
