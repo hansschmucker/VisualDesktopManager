@@ -6,20 +6,7 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
+        
         #region Windows Form Designer generated code
 
         /// <summary>
@@ -41,7 +28,7 @@
             // button1
             // 
             this.button1.BackColor = System.Drawing.Color.Silver;
-            this.button1.BackgroundImage = global::VisualDesktopManager.Properties.Resources.iconNew1;
+            this.button1.BackgroundImage = global::VisualDesktopManager.Properties.Resources.iconNew2;
             this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
             this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.button1.Enabled = false;

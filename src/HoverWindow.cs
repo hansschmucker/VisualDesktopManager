@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
@@ -6,9 +7,53 @@ namespace VisualDesktopManager
 {
     public partial class HoverWindow : Form
     {
+        private NotifyIcon trayNotifyIcon;
+        private ContextMenu trayContextMenu;
+
         public HoverWindow()
         {
+            trayContextMenu = new ContextMenu();
+            trayNotifyIcon = new NotifyIcon();
+            IntPtr tryIconPtr = Properties.Resources.trayIcon.GetHicon();
+            Icon trayIcon = Icon.FromHandle(tryIconPtr);
+
+            trayContextMenu.MenuItems.Add("Exit", OnExit);
+            trayNotifyIcon.Icon = trayIcon;
+            trayNotifyIcon.Text = "VisualDesktopManager";
+
+            trayNotifyIcon.ContextMenu = trayContextMenu;
+            trayNotifyIcon.Visible = true;
+
             InitializeComponent();
+        }
+
+        private void OnExit(object sender, EventArgs e)
+        {
+            closingAllowed = true;
+            Application.Exit();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            ShowInTaskbar = false;
+            Visible = false;
+
+            base.OnLoad(e);
+        }
+
+        protected override void Dispose(bool isDisposing)
+        {
+            if ((components != null))
+            {
+                components.Dispose();
+            }
+
+            if (isDisposing)
+            {
+                trayNotifyIcon.Dispose();
+            }
+
+            base.Dispose(isDisposing);
         }
 
         private void BringToPassiveFront()
@@ -193,8 +238,10 @@ namespace VisualDesktopManager
 
         private long lastClickTime = 0;
         private bool windowIsDragging;
+        private bool closingAllowed = false;
         private void thumbDragStart(object sender, MouseEventArgs e)
         {
+
             if (e.Button == MouseButtons.Right)
             {
                 thumbDragEnd(sender,e);
@@ -238,8 +285,8 @@ namespace VisualDesktopManager
             if (windowIsDragging)
             {
                 //Move by distance between click and center
-                ActiveForm.Left -= ActiveForm.Width / 2 - e.X;
-                ActiveForm.Top -= ActiveForm.Height / 2 - e.Y;
+                Left -= Width / 2 - e.X;
+                Top -= Height / 2 - e.Y;
                 return;
             }
 
@@ -262,7 +309,8 @@ namespace VisualDesktopManager
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            e.Cancel = true;
+            if(!closingAllowed)
+                e.Cancel = true;
         }
 
 

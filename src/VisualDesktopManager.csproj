@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="iconL.ico" />
+    <None Include="trayIcon.png" />
     <None Include="iconNew.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -63,9 +63,9 @@ namespace VisualDesktopManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap icon {
+        internal static System.Drawing.Bitmap iconNew2 {
             get {
-                object obj = ResourceManager.GetObject("icon", resourceCulture);
+                object obj = ResourceManager.GetObject("iconNew2", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -73,19 +73,9 @@ namespace VisualDesktopManager.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap iconNew {
+        internal static System.Drawing.Bitmap trayIcon {
             get {
-                object obj = ResourceManager.GetObject("iconNew", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap iconNew1 {
-            get {
-                object obj = ResourceManager.GetObject("iconNew1", resourceCulture);
+                object obj = ResourceManager.GetObject("trayIcon", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
