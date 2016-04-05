@@ -50,9 +50,15 @@ namespace VisualDesktopManager
         {
             if (manager == null)
                 return;
+            
+            var client = new Win32.Rect();
+            Win32.GetClientRect(window, ref client);
 
-            var natW=(x2 - x);
-            var natH=(y2 - y);
+            var natW=client.Right;
+            var natH=client.Bottom;
+            var outerW = (x2 - x);
+            var outerH = (y2 - y);
+            var borderSide = (outerW - natW) / 2;
 
             Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
             var dx = (int)(inputx / manager.scale + manager.viewport_x0 - natW / 2);
@@ -69,7 +75,10 @@ namespace VisualDesktopManager
             if (dy < manager.viewport_y0)
                 dy = manager.viewport_y0;
 
-            Win32.SetWindowPos(window, IntPtr.Zero,dx, dy, natW, natH, Win32.SW_SHOWNOACTIVATE);
+
+            
+
+            Win32.SetWindowPos(window, IntPtr.Zero,dx- borderSide, dy-1, outerW, outerH, Win32.SW_SHOWNOACTIVATE);
             update(true);
         }
 

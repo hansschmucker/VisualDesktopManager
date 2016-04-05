@@ -29,11 +29,14 @@ namespace VisualDesktopManager
 
             Win32.GetWindowModuleFileName(hwnd, module, 256);
             Win32.GetWindowText(hwnd, title, 256);
-
+            int isCloaked=0;
+            int canCloak = Win32.DwmGetWindowAttribute(hwnd, Win32.DWMWA_CLOAKED, out isCloaked, sizeof(int));
             if (
                    (style & Win32.WS_ICONIC) != Win32.WS_ICONIC
                 && (style & Win32.WS_VISIBLE) == Win32.WS_VISIBLE
+                && (style & Win32.WS_MINIMIZE) != Win32.WS_MINIMIZE
                 && (title.Length>0 || module.Length>0)
+                && ((canCloak==0 && isCloaked==0) || canCloak!=0)
                 && place.showCmd!=2
                 && hwnd!=container.Handle
             )

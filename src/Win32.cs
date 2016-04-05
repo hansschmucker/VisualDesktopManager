@@ -103,6 +103,11 @@ namespace VisualDesktopManager
         [DllImport("dwmapi.dll")]
         public static extern int DwmUpdateThumbnailProperties(IntPtr hThumb, ref DWM_THUMBNAIL_PROPERTIES props);
 
+        public static readonly int DWMWA_CLOAKED = 14;
+
+        [DllImport("dwmapi.dll")]
+        public static extern int DwmGetWindowAttribute( IntPtr hwnd,int dwAttribute,out int pvAttribute, int cbAttribute);
+        
         [DllImport("user32.dll")]
         public static extern ulong GetWindowLongA(IntPtr hWnd, int nIndex);
         
@@ -122,6 +127,9 @@ namespace VisualDesktopManager
         [DllImport("user32.dll")]
         public static extern void GetWindowRect(IntPtr hWnd, ref Rect lpRect);
 
+        [DllImport("user32.dll")]
+        public static extern void GetClientRect(IntPtr hWnd, ref Rect lpRect);
+        
         [DllImport("user32.dll")]
         public static extern void SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int x, int y, int w, int h, int flags);
 
