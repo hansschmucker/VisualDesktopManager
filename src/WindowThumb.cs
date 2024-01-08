@@ -87,31 +87,30 @@ namespace VisualDesktopManager
             update(false);
         }
 
-        public void maximize()
-        {
-            List<int[]> screens=new List<int[]>();
-            if (Screen.AllScreens.Length == 1 && Screen.AllScreens[0].Bounds.Width > 1920)
+        public void maximize(int thumbX, int thumbY) {
+            List<int[]> screens = new List<int[]>();
             {
-                var scr = Screen.AllScreens[0];
-                for (var i = 0; i < scr.Bounds.Width; i+=1920)
-                {
-                    screens.Add(new int[] { i, scr.Bounds.Top, i + 1920, scr.Bounds.Bottom, 1920, scr.Bounds.Height });
-                }
-            }
-            else
-            {
-                for (var i = 0; i < Screen.AllScreens.Length; i++)
-                {
-                    screens.Add(new int[] { Screen.AllScreens[i].Bounds.Left,Screen.AllScreens[i].Bounds.Top, Screen.AllScreens[i].Bounds.Right, Screen.AllScreens[i].Bounds.Bottom, Screen.AllScreens[i].Bounds.Width, Screen.AllScreens[i].Bounds.Height });
+                for (var i = 0; i < Screen.AllScreens.Length; i++) {
+                    screens.Add(new int[] { Screen.AllScreens[i].Bounds.Left, Screen.AllScreens[i].Bounds.Top, Screen.AllScreens[i].Bounds.Right, Screen.AllScreens[i].Bounds.Bottom, Screen.AllScreens[i].Bounds.Width, Screen.AllScreens[i].Bounds.Height, Screen.AllScreens[i].WorkingArea.Left, Screen.AllScreens[i].WorkingArea.Top, Screen.AllScreens[i].WorkingArea.Right, Screen.AllScreens[i].WorkingArea.Bottom,Screen.AllScreens[i].WorkingArea.Width, Screen.AllScreens[i].WorkingArea.Height });
                 }
             }
 
             Win32.Rect bounds = new Win32.Rect();
             Win32.GetWindowRect(window, ref bounds);
 
-            var cx = bounds.Left + (bounds.Right - bounds.Left) / 2;
-            var cy = bounds.Top + (bounds.Bottom - bounds.Top) / 2;
-            
+            var pc = new Win32.WINDOWPLACEMENT();
+            Win32.GetWindowPlacement(window, ref pc);
+
+            //use 1 if already maximized
+            if (pc.showCmd == 3) { 
+                pc.showCmd = 1;
+                Win32.SetWindowPlacement(window, ref pc);
+                return;
+            }
+
+            var cx = (int)(thumbX / manager.scale);
+            var cy = (int)(thumbY / manager.scale);
+
             for (var i = 0; i < screens.Count; i++)
             {
                 if(
@@ -121,16 +120,44 @@ namespace VisualDesktopManager
                     && cy < screens[i][3]
                 )
                 {
-                    //manager.container.Text = "CX" + cx.ToString() + ",CY" + cy.ToString() + " " + screens[i][0].ToString() + " " + screens[i][1].ToString() + " " + screens[i][2].ToString() + " " + screens[i][3].ToString() + " " + screens[i][4].ToString() + " " + screens[i][5].ToString();
 
-                    Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
-                    //Win32.SetWindowPos(window, IntPtr.Zero, screens[i][0], screens[i][1], screens[i][4], screens[i][5], Win32.SW_SHOWNOACTIVATE);
-                    var pc = new Win32.WINDOWPLACEMENT();
-                    Win32.GetWindowPlacement(window, ref pc);
-                    pc.showCmd = 3;
-                    Win32.SetWindowPlacement(window, ref pc);
-                    update(true);
-                    return;
+
+                    var rcx = cx - screens[i][0];
+                    var rcy = cy - screens[i][1];
+                    var left = screens[i][4] / 4;
+                    var right = left * 3;
+                    var top = screens[i][5] / 4;
+                    var bottom = top * 3;
+                    var hFull = screens[i][10];
+                    var vFull = screens[i][11];
+                    var hHalf = hFull / 2;
+                    var vHalf = vFull / 2;
+
+
+                    if (rcx < left && rcy < top) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6], screens[i][7], hHalf, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcx > right && rcy < top) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6] + hHalf, screens[i][7], hHalf, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcx < left && rcy > bottom) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6], screens[i][7] + vHalf, hHalf, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcx > right && rcy > bottom) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6] + hHalf, screens[i][7] + vHalf, hHalf, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcx < left) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6], screens[i][7], hHalf, vFull, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcx > right) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6] + hHalf, screens[i][7], hHalf, vFull, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcy < top) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6], screens[i][7], hFull, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else if (rcy > bottom) {
+                        Win32.SetWindowPos(window, IntPtr.Zero, screens[i][6], screens[i][7] + vHalf, hFull, vHalf, Win32.SW_SHOWNOACTIVATE);
+                    } else {
+                        Win32.ShowWindow(window, Win32.SW_SHOWNOACTIVATE);
+
+                        pc.showCmd = 3;
+                        Win32.SetWindowPlacement(window, ref pc);
+                        update(true);
+                        return;
+                    }
                 }
             }
         }

@@ -23,7 +23,7 @@
             // 
             // timer1
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timer1.Tick += new System.EventHandler(this.OnTick);
             // 
             // button1
             // 
@@ -56,12 +56,12 @@
             this.Name = "HoverWindow";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.Transparent;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnClose);
             this.Load += new System.EventHandler(this.Form1_Load);
-            this.ResizeEnd += new System.EventHandler(this.Form1_ResizeEnd);
-            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.thumbDragStart);
-            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.thumbDragDo);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.thumbDragEnd);
+            this.ResizeEnd += new System.EventHandler(this.OnResize);
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OnThumbMouseDown);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.OnMouseMove);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.OnMouseUp);
             this.ResumeLayout(false);
 
         }

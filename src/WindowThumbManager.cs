@@ -9,18 +9,15 @@ namespace VisualDesktopManager
 {
     class WindowThumbManager
     {
-        public UInt64 pass=0;
         public List<WindowThumb> thumbs = new List<WindowThumb>();
         public Control container;
-        public WindowThumbManager(Control aContainer)
-        {
+        public WindowThumbManager(Control aContainer){
             container = aContainer;
         }
 
         public List<IntPtr> lastEnumHwnds = new List<IntPtr>();
 
-        unsafe bool recordWindowEnum(IntPtr hwnd, int lParam)
-        {
+        unsafe bool recordWindowEnum(IntPtr hwnd, int lParam){
             var place = new Win32.WINDOWPLACEMENT();
             Win32.GetWindowPlacement(hwnd, ref place);
             var style = Win32.GetWindowLongA(hwnd, Win32.GWL_STYLE);
@@ -29,8 +26,8 @@ namespace VisualDesktopManager
 
             Win32.GetWindowModuleFileName(hwnd, module, 256);
             Win32.GetWindowText(hwnd, title, 256);
-            int isCloaked=0;
-            int canCloak = Win32.DwmGetWindowAttribute(hwnd, Win32.DWMWA_CLOAKED, out isCloaked, sizeof(int));
+            var isCloaked=0;
+            var canCloak = Win32.DwmGetWindowAttribute(hwnd, Win32.DWMWA_CLOAKED, out isCloaked, sizeof(int));
             if (
                    (style & Win32.WS_ICONIC) != Win32.WS_ICONIC
                 && (style & Win32.WS_VISIBLE) == Win32.WS_VISIBLE
@@ -44,35 +41,15 @@ namespace VisualDesktopManager
             return true;
         }
 
-        unsafe void createThumbs()
-        {
-            
-            for (var i = lastEnumHwnds.Count - 1; i >= 0; i--)
-            {
-                var hwnd = lastEnumHwnds[i];
-                {
-                    var thumb = new WindowThumb(this);
-                    thumbs.Add(thumb);
-                    thumb.window = hwnd;
-                    thumb.showThumb();
-                    thumb.update();
-                }
-            }
-        }
-
-        public void removeThumb(WindowThumb thumb)
-        {
+        public void removeThumb(WindowThumb thumb){
             for (var i = this.thumbs.Count - 1; i >= 0; i--)
-            {
-                if (thumb == thumbs[i])
-                {
+                if (thumb == thumbs[i]){
                     thumb.hideThumb();
                     thumb.manager = null;
                     thumb.window = IntPtr.Zero;
                     thumbs.RemoveAt(i);
                     return;
                 }
-            }
         }
         public WindowThumb getUnder(int x,int y){
             for (var i = this.thumbs.Count - 1; i >= 0; i--)
@@ -118,8 +95,7 @@ namespace VisualDesktopManager
             viewport_x1 = int.MinValue;
             viewport_y1 = int.MinValue;
 
-            for (var i = 0; i < Screen.AllScreens.Length; i++)
-            {
+            for (var i = 0; i < Screen.AllScreens.Length; i++){
                 var scr = Screen.AllScreens[i];
                 viewport_x0 = Math.Min(viewport_x0, scr.Bounds.Left);
                 viewport_x1 = Math.Max(viewport_x1, scr.Bounds.Right);
@@ -147,9 +123,7 @@ namespace VisualDesktopManager
             // Weed out all outdated thumbs
             for (var i = thumbs.Count-1; i >= 0; i--){
                 if (!lastEnumHwnds.Contains(thumbs[i].window))
-                {
                     removeThumb(thumbs[i]);
-                }
                 else
                     existingWindows.Add(thumbs[i].window);
             }
@@ -160,14 +134,12 @@ namespace VisualDesktopManager
             for (var i = lastEnumHwnds.Count-1; i >= 0; i--)
             {
                 if(!existingWindows.Contains(lastEnumHwnds[i])){
-                    {
                         var thumb = new WindowThumb(this);
                         thumbs.Add(thumb);
                         existingWindows.Add(lastEnumHwnds[i]);
                         thumb.window = lastEnumHwnds[i];
                         thumb.showThumb();
                         thumb.update();
-                    }
                 }
             }
 
@@ -176,28 +148,17 @@ namespace VisualDesktopManager
 
             var outOfOrderThumbs = new List<WindowThumb>();
             if (lastEnumHwnds.Count != thumbs.Count)
-            {
                 outOfOrderThumbs.Add(null);
-            }
             else
-            {
                 for (var i = 0; i < lastEnumHwnds.Count; i++)
-                {
                     if (lastEnumHwnds[i] != thumbs[thumbs.Count - 1 - i].window)
                         outOfOrderThumbs.Add(thumbs[i]);
-                }
-            }
 
 
 
             if (outOfOrderThumbs.Count > 0)
-            {
                 for (var i = thumbs.Count - 1; i >= 0; i--)
-                {
                     removeThumb(thumbs[i]);
-                }
-                
-            }
 
             /*
              * Go through all hwnds and flag the ones found valid.

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace VisualDesktopManager
 {
@@ -9,6 +11,7 @@ namespace VisualDesktopManager
     {
         private NotifyIcon trayNotifyIcon;
         private ContextMenu trayContextMenu;
+        private bool Sticky = false;
 
         public HoverWindow()
         {
@@ -18,6 +21,7 @@ namespace VisualDesktopManager
             Icon trayIcon = Icon.FromHandle(tryIconPtr);
 
             trayContextMenu.MenuItems.Add("Exit", OnExit);
+            trayContextMenu.MenuItems.Add("Sticky", OnSticky);
             trayNotifyIcon.Icon = trayIcon;
             trayNotifyIcon.Text = "VisualDesktopManager";
 
@@ -31,6 +35,10 @@ namespace VisualDesktopManager
         {
             closingAllowed = true;
             Application.Exit();
+        }
+
+        private void OnSticky(object sender, EventArgs e) {
+            Sticky = !Sticky;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -136,7 +144,7 @@ namespace VisualDesktopManager
 
         private void enterMini()
         {
-            if (minimized)
+            if (minimized || Sticky)
                 return;
             mgr.stop();
             {
@@ -197,7 +205,7 @@ namespace VisualDesktopManager
         }
 
         private bool firstTick = true;
-        private void timer1_Tick(object sender, EventArgs e)
+        private void OnTick(object sender, EventArgs e)
         {
             var r=new Win32.Rect();
             Win32.GetWindowRect(Handle, ref r);
@@ -225,7 +233,7 @@ namespace VisualDesktopManager
             if (firstTick)
             {
                 mgr.updateAspect();
-                Form1_ResizeEnd(null,null);
+                OnResize(null,null);
             }
             firstTick = false;
             if (age > 32)
@@ -239,14 +247,25 @@ namespace VisualDesktopManager
         private long lastClickTime = 0;
         private bool windowIsDragging;
         private bool closingAllowed = false;
-        private void thumbDragStart(object sender, MouseEventArgs e)
+
+        private void OnThumbMouseDown(object sender, MouseEventArgs e)
         {
 
             if (e.Button == MouseButtons.Right)
             {
-                thumbDragEnd(sender,e);
+                OnMouseUp(sender,e);
 
                 windowIsDragging = true;
+            }else if(e.Button == MouseButtons.Middle) {
+                //FIXME add simulate click with middle button
+                // https://stackoverflow.com/questions/10355286/programmatically-mouse-click-in-another-window
+                var oldPos = Cursor.Position;
+                Cursor.Position = new Point((int)(e.X / mgr.scale), (int)(e.Y / mgr.scale));
+
+                /// return mouse 
+                Cursor.Position = oldPos;
+
+                return;
             }
 
             if (e.Button != MouseButtons.Left)
@@ -260,28 +279,28 @@ namespace VisualDesktopManager
             if (thumb == null)
                 return;
 
-            if ((t - lastClickTime) < 5000000)
+            if ((t - lastClickTime) < 2500000)
             {
-                thumb.maximize();
+                thumb.maximize(e.X,e.Y);
             }
             else
             {
                 dragging = thumb.window;
                 lastClickTime = t;
-                thumb.centerOn(e.X, e.Y);
             }
             BringToPassiveFront();
         }
 
-        private void thumbDragEnd(object sender, MouseEventArgs e)
+        private void OnMouseUp(object sender, MouseEventArgs e)
         {
             windowIsDragging = false;
             dragging = IntPtr.Zero;
             BringToPassiveFront();
         }
 
-        private void thumbDragDo(object sender, MouseEventArgs e)
+        private void OnMouseMove(object sender, MouseEventArgs e)
         {
+
             if (windowIsDragging)
             {
                 //Move by distance between click and center
@@ -292,27 +311,40 @@ namespace VisualDesktopManager
 
             if (dragging == IntPtr.Zero)
                 return;
+
             var thumb = mgr.findThumb(dragging);
+            var now = DateTime.Now.Ticks;
             if (thumb != null)
             {
-                thumb.centerOn(e.X, e.Y);
+                if ((now - lastClickTime) > 2500000) {
+                    var pc = new Win32.WINDOWPLACEMENT();
+                    Win32.GetWindowPlacement(dragging, ref pc);
+
+                    //use 1 if already maximized
+                    if (pc.showCmd == 3) {
+                        pc.showCmd = 1;
+                        Win32.SetWindowPlacement(dragging, ref pc);
+                        lastClickTime = now;
+                        return;
+                    }
+                    thumb.centerOn(e.X, e.Y);
+                }
             }
             BringToPassiveFront();
         }
 
-        public void Form1_ResizeEnd(object sender, EventArgs e)
+        public void OnResize(object sender, EventArgs e)
         {
-            var bw = (Width - ClientRectangle.Width);
             var bh = (Height - ClientRectangle.Height);
             Height = (int)(ClientRectangle.Width / mgr.aspect)+bh;
+
+            //FIXME draw screen borders and wallpaper
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        private void OnClose(object sender, FormClosingEventArgs e)
         {
             if(!closingAllowed)
                 e.Cancel = true;
         }
-
-
     }
 }
